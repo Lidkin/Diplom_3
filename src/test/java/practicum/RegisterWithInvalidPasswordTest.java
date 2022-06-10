@@ -5,7 +5,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import practicum.PageObject.RegisterPage;
+import practicum.pageobject.RegisterPage;
+import practicum.user.UserManipulation;
+import static com.codeborne.selenide.Selenide.localStorage;
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.Assert.assertEquals;
 
@@ -14,6 +16,7 @@ public class RegisterWithInvalidPasswordTest {
 
     Browser browser;
     static String validPassword = RandomStringUtils.randomAlphabetic(6);
+    UserManipulation userManipulation = new UserManipulation();
 
     @Parameterized.Parameter
     public String password;
@@ -41,6 +44,9 @@ public class RegisterWithInvalidPasswordTest {
 
     @After
     public void closeWindow() {
+        String token = localStorage().getItem("accessToken");
+        if(token != null)
+            userManipulation.deleteUser(token.substring(7));
         browser.tearDown();
     }
 
