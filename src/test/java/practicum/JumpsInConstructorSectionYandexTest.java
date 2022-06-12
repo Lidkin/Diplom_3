@@ -5,16 +5,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import practicum.PageObject.MainPage;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import practicum.pageobject.MainPage;
 import static com.codeborne.selenide.Selenide.open;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class JumpsInConstructorSectionYandexTest {
 
-    static String select = "tab_tab__1SPyG tab_tab_type_current__2BEPc pt-4 pr-10 pb-4 pl-10 noselect";
-    static String noSelect = "tab_tab__1SPyG  pt-4 pr-10 pb-4 pl-10 noselect";
     static Browser browser;
+    static String select = "current__2BEPc";
+    static String yandex = "yandex";
+    static WebDriverWait wait;
     static MainPage mainPage;
 
     @Parameterized.Parameter
@@ -24,27 +26,22 @@ public class JumpsInConstructorSectionYandexTest {
     public int index;
 
     @Parameterized.Parameter(2)
-    public String expectedBefore;
-
-    @Parameterized.Parameter(3)
-    public String expectedAfter;
-
-    @Parameterized.Parameter(4)
-    public String screenshotName;
+    public String expectedValue;
 
     @Parameterized.Parameters(name = "jump to section {0}")
     public static Object[][] ingredientsData() {
-        return new Object[][] {
-                {"Булки", 0, select, select, "buns_yandex"},
-                {"Соусы", 1, noSelect, select, "sauces_yandex"},
-                {"Начинки", 2, noSelect, select, "fillings_yandex"},
+        return new Object[][]{
+                {"Соусы", 1, select},
+                {"Начинки", 2, select},
+                {"Булки", 0, select},
         };
     }
+
     @BeforeClass
-    public static void setUp() throws InterruptedException {
-       browser = new Browser("yandex");
-       mainPage = open(MainPage.pageUrl, MainPage.class);
-       Thread.sleep(1000);
+    public static void setUp() {
+        browser = new Browser(yandex);
+        wait = browser.getWaitObject();
+        mainPage = open(MainPage.pageUrl, MainPage.class);
     }
 
     @AfterClass
@@ -53,14 +50,9 @@ public class JumpsInConstructorSectionYandexTest {
     }
 
     @Test
-    public void jumpsYandexTest() throws InterruptedException {
-         String before = mainPage
-                .checkValue(index);
+    public void jumpsTest() {
         String actual = mainPage
-                .selectIngredient(index, screenshotName)
-                .checkValue(index);
-        assertEquals(expectedBefore, before);
-        assertEquals(expectedAfter, actual);
+                .jumpsInSection(index, expectedValue, wait, name);
+        assertTrue(actual.contains(expectedValue));
     }
-
 }
