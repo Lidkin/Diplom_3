@@ -5,23 +5,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import practicum.PageObject.ForgotPasswordPage;
-import practicum.PageObject.LoginPage;
-import practicum.PageObject.MainPage;
-import practicum.PageObject.RegisterPage;
+import practicum.pageobject.ForgotPasswordPage;
+import practicum.pageobject.LoginPage;
+import practicum.pageobject.MainPage;
+import practicum.pageobject.RegisterPage;
+import practicum.user.Credentials;
+import practicum.user.UserBody;
+import practicum.user.UserManipulation;
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class SignInTest {
 
-    String email = "lisha66@yandex.com";
-    String password = "kokoko-111";
-    String name = "Lidkin";
-    String token;
+    String token, email, password, name;
     Browser browser;
-
+    UserBody body = new UserBody();
     UserManipulation userManipulation = new UserManipulation();
+    Credentials credentials = new Credentials();
 
     @Parameterized.Parameter
     public String myBrowser;
@@ -36,8 +37,11 @@ public class SignInTest {
 
     @Before
     public void registerUser(){
-        User body = new User(email,password,name);
-        token = userManipulation.registerUserAndGetToken(body);
+        email = credentials.getEmail();
+        password = credentials.getPassword();
+        name = credentials.getName();
+        token = userManipulation.registerOrLoginUser(body.UserRegisterBody(email, password, name), "register");
+        browser = new Browser(myBrowser);
     }
 
     @After
@@ -47,105 +51,81 @@ public class SignInTest {
     }
 
     @Test
-    public void byEnterAccountButtonTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void byEnterAccountButtonTest(){
         MainPage mainPage = open(MainPage.pageUrl, MainPage.class);
         assertEquals("Войти в аккаунт", mainPage.getTextEnterAccountButton());
         String actual = mainPage
                 .clickEnterToAccount()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void byEnterProfileButtonTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void byEnterProfileButtonTest(){
         MainPage mainPage = open(MainPage.pageUrl, MainPage.class);
         String actual = mainPage
                 .clickEnterProfile()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void loginPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void loginPageTest(){
         LoginPage loginPage = open(LoginPage.pageUrl, LoginPage.class);
         String actual = loginPage
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void byEnterProfileLoginPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void byEnterProfileLoginPageTest(){
         LoginPage loginPage = open(LoginPage.pageUrl, LoginPage.class);
         String actual = loginPage
                 .clickEnterProfile()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void registerPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void registerPageTest(){
         RegisterPage registerPage = open(RegisterPage.pageUrl, RegisterPage.class);
         String actual = registerPage
                 .clickLogin()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void byEnterProfileRegisterPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void byEnterProfileRegisterPageTest(){
         RegisterPage registerPage = open(RegisterPage.pageUrl, RegisterPage.class);
         String actual = registerPage
                 .clickEnterProfile()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void forgotPasswordPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void forgotPasswordPageTest(){
         ForgotPasswordPage forgotPasswordPage = open(ForgotPasswordPage.pageUrl, ForgotPasswordPage.class);
         String actual = forgotPasswordPage
                 .clickLogin()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
 
     @Test
-    public void byEnterProfileForgotPasswordPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void byEnterProfileForgotPasswordPageTest(){
         ForgotPasswordPage forgotPasswordPage = open(ForgotPasswordPage.pageUrl, ForgotPasswordPage.class);
         String actual = forgotPasswordPage
                 .clickEnterProfile()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .login(email, password)
                 .getTextOrderButton();
         assertEquals("Оформить заказ", actual);
     }
