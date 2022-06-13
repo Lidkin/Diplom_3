@@ -51,23 +51,21 @@ public class RegisterWithInvalidPasswordTest {
     }
 
     @Test
-    public void registerInGoogleTest() throws InterruptedException {
+    public void registerInGoogleTest(){
         browser = new Browser("google");
         RegisterPage registerPage = open(RegisterPage.pageUrl, RegisterPage.class);
         Boolean actual = registerPage
-                .enterPassword(password)
-                .register()
+                .register(password)
                 .isErrorMessageDisplayed();
         assertEquals(expected, actual);
     }
 
     @Test
-    public  void registerInYandexTest() throws InterruptedException {
+    public  void registerInYandexTest(){
         browser = new Browser("yandex");
         RegisterPage registerPage = open(RegisterPage.pageUrl, RegisterPage.class);
         Boolean actual = registerPage
-                .enterPassword(password)
-                .register()
+                .register(password)
                 .isErrorMessageDisplayed();
         assertEquals(expected, actual);
     }

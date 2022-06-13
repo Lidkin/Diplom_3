@@ -1,7 +1,8 @@
-package practicum;
+package practicum.user;
 
 import io.qameta.allure.Step;
-import practicum.PageObject.MainPage;
+import practicum.pageobject.LoginPage;
+import practicum.pageobject.MainPage;
 import static com.codeborne.selenide.Selenide.open;
 import static io.restassured.RestAssured.given;
 
@@ -10,17 +11,17 @@ public class UserManipulation {
 
     private final String baseURI = MainPage.pageUrl;
 
-    @Step("create user and get token")
-    protected String registerUserAndGetToken(Object body) {
+    @Step("register/login user and get token")
+    public String registerOrLoginUser(String body, String endpoint) {
         return given()
                 .header("Content-Type", "application/json")
                 .body(body)
-                .post(baseURI + "/api/auth/register")
+                .post(baseURI + "/api/auth/" + endpoint)
                 .body().path("accessToken").toString().substring(7);
     }
 
     @Step("delete user")
-    protected void deleteUser(String token) {
+    public void deleteUser(String token) {
         given()
                 .auth().oauth2(token)
                 .delete( baseURI + "/api/auth/user")
@@ -29,13 +30,9 @@ public class UserManipulation {
     }
 
     @Step("login user")
-    protected MainPage login(String email, String password) throws InterruptedException {
-        MainPage mainPage = open(MainPage.pageUrl, MainPage.class);
-        return mainPage
-                .clickEnterProfile()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin();
+    public MainPage loginUserOnLoginPage(String email, String password) {
+        LoginPage loginPage = open(LoginPage.pageUrl, LoginPage.class);
+        return loginPage.login(email, password);
     }
 
 }

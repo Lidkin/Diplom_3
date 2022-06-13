@@ -1,14 +1,15 @@
-package practicum.PageObject;
+package practicum.pageobject;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
-import static com.codeborne.selenide.Selenide.page;
-import static com.codeborne.selenide.Selenide.screenshot;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selectors.*;
+import static com.codeborne.selenide.Selenide.*;
 
 
 public class MainPage {
@@ -24,8 +25,7 @@ public class MainPage {
     @FindBy(how = How.XPATH, using = ".//button[contains(text(), 'Оформить заказ')]")
     protected SelenideElement orderButton;
 
-    @FindBy(how = How.XPATH, using = ".//div[contains(@class,'tab_tab__1SPyG')]")
-    protected ElementsCollection ingredientsSection;
+    protected ElementsCollection ingredientsSection = $$(byCssSelector("div.noselect"));
 
     @Step("press \"account profile\", jump to LoginPage")
     public LoginPage clickEnterProfile() {
@@ -55,23 +55,14 @@ public class MainPage {
         return orderButton.shouldBe(Condition.visible).getText();
     }
 
-    @Step("selection of ingredients and screenshots")
-    public MainPage selectIngredient(int index, String screenshotName) throws InterruptedException {
-        if (index == 0)
-            ingredientsSection.get(index + 2).shouldBe(Condition.enabled).click();
-        ingredientsSection.get(index).click();
-        Thread.sleep(500);
-        Configuration.reportsFolder = "test-result/reports";
-        String pngFileName = screenshot(screenshotName);
-        return this;
-    }
+    @Step("check right chosen after click to element of ingredients section")
+    public String jumpsInSection(int index, String expectedValue, WebDriverWait wait, String name){
+        SelenideElement section = ingredientsSection.get(index);
+        wait.until(ExpectedConditions.elementToBeClickable(section.toWebElement())).isDisplayed();
+        section.click();
+        wait.until(ExpectedConditions.attributeContains(section.shouldHave(text(name)).toWebElement(),"class", expectedValue));
+        return section.getAttribute("class");
 
-    @Step
-    public String checkValue(int index) {
-        return ingredientsSection
-                .get(index).shouldBe(Condition.visible)
-                .toWebElement()
-                .getAttribute("class");
     }
 
 }

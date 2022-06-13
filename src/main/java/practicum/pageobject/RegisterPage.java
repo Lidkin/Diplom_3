@@ -1,4 +1,4 @@
-package practicum.PageObject;
+package practicum.pageobject;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
@@ -6,15 +6,15 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.*;
+import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.page;
 
 
 public class RegisterPage {
 
     public static final String pageUrl = "https://stellarburgers.nomoreparties.site/register";
-
-    @FindAll({@FindBy(xpath = "//input")})
-    protected ElementsCollection registerPageForm;
 
     @FindBy(how = How.XPATH, using = ".//a[text() = 'Войти']")
     protected SelenideElement signIn;
@@ -28,22 +28,35 @@ public class RegisterPage {
     @FindBy(how = How.XPATH, using = ".//h2[text()] = 'Регистрация")
     protected SelenideElement text;
 
-    @FindBy(how = How.XPATH , using = ".//a[@href ='/account']")
+    @FindBy(how = How.XPATH, using = ".//a[@href ='/account']")
     protected SelenideElement accountProfile;
 
-    public RegisterPage enterName(String name) {
-        registerPageForm.get(0).sendKeys(name);
-        return this;
+    @FindBy(how = How.XPATH, using = "//label[text() ='Пароль']/following-sibling::input")
+    protected SelenideElement passwordValue;
+
+    @FindBy(how = How.XPATH, using = "//label[text() ='Email']/following-sibling::input")
+    protected SelenideElement emailValue;
+
+    @FindBy(how = How.XPATH, using = "//label[text() = 'Имя']/following-sibling::input")
+    protected SelenideElement nameValue;
+
+    public void setName(String name) {
+        nameValue.shouldBe(interactable)
+                .setValue(name);
     }
 
-    public RegisterPage enterEmail(String email) {
-        registerPageForm.get(1).sendKeys(email);
-        return this;
+    public void setEmail(String email) {
+        emailValue.shouldBe(interactable)
+                .setValue(email);
     }
 
-    public RegisterPage enterPassword(String password){
-        registerPageForm.get(2).sendKeys(password);
-        return this;
+    public void setPassword(String password) {
+        passwordValue.shouldBe(interactable)
+                .setValue(password);
+    }
+
+    public void clickRegisterButton() {
+        registerButton.click();
     }
 
     @Step("press on \"login\"")
@@ -53,20 +66,23 @@ public class RegisterPage {
     }
 
     @Step("press on \"register\" and jump to login page")
-    public LoginPage clickRegisterButton() {
-        registerButton.click();
+    public LoginPage registerUser(String email, String password, String name) {
+        setName(name);
+        setEmail(email);
+        setPassword(password);
+        clickRegisterButton();
         return page(LoginPage.class);
     }
 
     @Step("press on \"register\"")
-    public RegisterPage register() {
-        registerButton.click();
+    public RegisterPage register(String password) {
+        setPassword(password);
+        clickRegisterButton();
         return this;
     }
 
     @Step
-    public Boolean isErrorMessageDisplayed() throws InterruptedException {
-        Thread.sleep(500);
+    public Boolean isErrorMessageDisplayed() {
         return errorMessage.isDisplayed();
     }
 
@@ -77,9 +93,10 @@ public class RegisterPage {
     }
 
     @Step("press on \"account profile\" - authorized user, jump to account profile page")
-    public AccountProfilePage clickEnterProfileAuthorizedUser(){
+    public AccountProfilePage clickEnterProfileAuthorizedUser() {
         accountProfile.click();
         return page(AccountProfilePage.class);
     }
 
 }
+
