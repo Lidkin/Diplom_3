@@ -15,7 +15,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class GoOutFromProfileTest {
 
-    String registerToken, loginToken, email, password, name;
+    String registerToken, token, email, password, name;
+    MainPage mainPage;
     Credentials credentials = new Credentials();
     UserManipulation userManipulation = new UserManipulation();
     UserBody body = new UserBody();
@@ -23,18 +24,21 @@ public class GoOutFromProfileTest {
 
     @Before
     public void registerUser(){
+        browser = new Browser(myBrowser);
         email = credentials.getEmail();
         password = credentials.getPassword();
         name = credentials.getName();
         registerToken = userManipulation.registerOrLoginUser(body.UserRegisterBody(email, password, name), "register");
-        browser = new Browser(myBrowser);
+        mainPage = userManipulation.loginUserOnLoginPage(email, password);
+
     }
 
     @After
     public void cleanUp(){
-        if (loginToken == null) {
+        token = localStorage().getItem("accessToken");
+        if (token == null) {
             userManipulation.deleteUser(registerToken);
-        } else { userManipulation.deleteUser(loginToken.substring(7)); }
+        } else { userManipulation.deleteUser(token.substring(7)); }
         browser.tearDown();
     }
 
@@ -51,8 +55,6 @@ public class GoOutFromProfileTest {
 
     @Test
     public void fromMainPageTest(){
-        MainPage mainPage = userManipulation.loginUserOnLoginPage(email, password);
-        loginToken = localStorage().getItem("accessToken");
         String actual = mainPage
                 .clickEnterProfileAuthorizedUser()
                 .clickExitButton()

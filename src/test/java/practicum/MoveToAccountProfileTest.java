@@ -5,23 +5,25 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import practicum.PageObject.ForgotPasswordPage;
-import practicum.PageObject.LoginPage;
-import practicum.PageObject.MainPage;
-import practicum.PageObject.RegisterPage;
+import practicum.pageobject.ForgotPasswordPage;
+import practicum.pageobject.LoginPage;
+import practicum.pageobject.MainPage;
+import practicum.pageobject.RegisterPage;
+import practicum.user.Credentials;
+import practicum.user.UserBody;
+import practicum.user.UserManipulation;
+import static com.codeborne.selenide.Selenide.localStorage;
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class MoveToAccountProfileTest {
 
-    String email = "lisha66@yandex.com";
-    String password = "kokoko-111";
-    String name = "Lidkin";
-    String token;
+    String registerToken, token, email, password, name;
     Browser browser;
-
+    UserBody body = new UserBody();
     UserManipulation userManipulation = new UserManipulation();
+    Credentials credentials = new Credentials();
 
     @Parameterized.Parameter
     public String myBrowser;
@@ -36,54 +38,59 @@ public class MoveToAccountProfileTest {
 
     @Before
     public void registerUser(){
-        User body = new User(email,password,name);
-        token = userManipulation.registerUserAndGetToken(body);
+        browser = new Browser(myBrowser);
+        email = credentials.getEmail();
+        password = credentials.getPassword();
+        name = credentials.getName();
+        registerToken = userManipulation.registerOrLoginUser(body.UserRegisterBody(email, password, name), "register");
     }
 
     @After
     public void cleanUp(){
+        token = localStorage().getItem("accessToken");
+        if(token == null){
+            userManipulation.deleteUser(registerToken);
+        } else { userManipulation.deleteUser(token.substring(7)); }
         browser.tearDown();
-        userManipulation.deleteUser(token);
     }
 
     @Test
-    public void fromMainPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
-        MainPage login = userManipulation.login(email, password);
-        Boolean actual = login
+    public void fromMainPageTest(){
+        MainPage mainPage = userManipulation.loginUserOnLoginPage(email, password);
+        Boolean actual = mainPage
                 .clickEnterProfileAuthorizedUser()
                 .saveButtonIsDisplayed();
         assertTrue(actual);
     }
 
     @Test
-    public void fromLoginPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
-        userManipulation.login(email, password);
+    public void fromLoginPageTest(){
         LoginPage loginPage = open(LoginPage.pageUrl, LoginPage.class);
         Boolean actual = loginPage
+                .clickEnterProfile()
+                .login(email,password)
                 .clickEnterProfileAuthorizedUser()
                 .saveButtonIsDisplayed();
         assertTrue(actual);
     }
 
     @Test
-    public void fromRegisterPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
-        userManipulation.login(email, password);
+    public void fromRegisterPageTest(){
         RegisterPage registerPage = open(RegisterPage.pageUrl, RegisterPage.class);
         Boolean actual = registerPage
                 .clickEnterProfileAuthorizedUser()
+                .login(email, password)
+                .clickEnterProfileAuthorizedUser()
                 .saveButtonIsDisplayed();
         assertTrue(actual);
     }
 
     @Test
-    public void fromForgotPasswordPageTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
-        userManipulation.login(email, password);
+    public void fromForgotPasswordPageTest(){
         ForgotPasswordPage forgotPasswordPage = open(ForgotPasswordPage.pageUrl, ForgotPasswordPage.class);
         Boolean actual = forgotPasswordPage
+                .clickEnterProfileAuthorizedUser()
+                .login(email, password)
                 .clickEnterProfileAuthorizedUser()
                 .saveButtonIsDisplayed();
         assertTrue(actual);

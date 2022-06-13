@@ -16,13 +16,12 @@ public class MainPage {
 
     public static final String pageUrl = "https://stellarburgers.nomoreparties.site";
 
-    @FindBy(how = How.XPATH , using = ".//a[@href ='/account']")
-    protected SelenideElement accountProfile;
+    protected SelenideElement accountProfile = $(byXpath("//a[@href = '/account']"));
 
-    @FindBy(how = How.XPATH, using = ".//button[contains(text(), 'Войти в аккаунт')]")
+    @FindBy(how = How.XPATH, using = "//button[contains(text(), 'Войти в аккаунт')]")
     protected SelenideElement enterAccountButton;
 
-    @FindBy(how = How.XPATH, using = ".//button[contains(text(), 'Оформить заказ')]")
+    @FindBy(how = How.XPATH, using = "//button[contains(text(), 'Оформить заказ')]")
     protected SelenideElement orderButton;
 
     protected ElementsCollection ingredientsSection = $$(byCssSelector("div.noselect"));

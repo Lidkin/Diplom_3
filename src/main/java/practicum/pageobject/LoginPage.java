@@ -7,6 +7,7 @@ import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byXpath;
 import static com.codeborne.selenide.Selenide.*;
 
 
@@ -14,11 +15,10 @@ public class LoginPage {
 
     public static final String pageUrl = "https://stellarburgers.nomoreparties.site/login";
 
-    @FindBy(how = How.XPATH, using = ".//button[contains(text(), 'Войти')]")
+    @FindBy(how = How.XPATH, using = "//button[contains(text(), 'Войти')]")
     protected SelenideElement signInButton;
 
-    @FindBy(how = How.XPATH, using = ".//a[@href ='/account']")
-    protected SelenideElement accountProfile;
+    protected SelenideElement accountProfile = $(byXpath("//a[@href = '/account']"));
 
     @FindBy(how = How.XPATH, using = "//h2[contains(text(), 'Вход')]")
     protected SelenideElement text;

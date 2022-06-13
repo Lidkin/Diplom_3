@@ -1,13 +1,11 @@
 package practicum.pageobject;
 
-import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
-import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selectors.*;
+import static com.codeborne.selenide.Selectors.byXpath;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.page;
 
@@ -16,20 +14,19 @@ public class RegisterPage {
 
     public static final String pageUrl = "https://stellarburgers.nomoreparties.site/register";
 
-    @FindBy(how = How.XPATH, using = ".//a[text() = 'Войти']")
+    @FindBy(how = How.XPATH, using = "//a[text() = 'Войти']")
     protected SelenideElement signIn;
 
-    @FindBy(how = How.XPATH, using = ".//button[text() = 'Зарегистрироваться']")
+    @FindBy(how = How.XPATH, using = "//button[text() = 'Зарегистрироваться']")
     protected SelenideElement registerButton;
 
-    @FindBy(how = How.XPATH, using = ".//p[contains(text(), 'Некорректный пароль')]")
+    @FindBy(how = How.XPATH, using = "//p[contains(text(), 'Некорректный пароль')]")
     protected SelenideElement errorMessage;
 
-    @FindBy(how = How.XPATH, using = ".//h2[text()] = 'Регистрация")
+    @FindBy(how = How.XPATH, using = "//h2[text()] = 'Регистрация")
     protected SelenideElement text;
 
-    @FindBy(how = How.XPATH, using = ".//a[@href ='/account']")
-    protected SelenideElement accountProfile;
+    protected SelenideElement accountProfile = $(byXpath("//a[@href = '/account']"));
 
     @FindBy(how = How.XPATH, using = "//label[text() ='Пароль']/following-sibling::input")
     protected SelenideElement passwordValue;
@@ -93,9 +90,9 @@ public class RegisterPage {
     }
 
     @Step("press on \"account profile\" - authorized user, jump to account profile page")
-    public AccountProfilePage clickEnterProfileAuthorizedUser() {
+    public LoginPage clickEnterProfileAuthorizedUser() {
         accountProfile.click();
-        return page(AccountProfilePage.class);
+        return page(LoginPage.class);
     }
 
 }

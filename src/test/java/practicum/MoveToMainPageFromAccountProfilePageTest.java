@@ -5,22 +5,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import practicum.PageObject.AccountProfilePage;
-import practicum.PageObject.MainPage;
-
-import static com.codeborne.selenide.Selenide.open;
+import practicum.pageobject.MainPage;
+import practicum.user.Credentials;
+import practicum.user.UserBody;
+import practicum.user.UserManipulation;
+import static com.codeborne.selenide.Selenide.localStorage;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class MoveToMainPageFromAccountProfilePageTest {
 
-    String email = "lisha66@yandex.com";
-    String password = "kokoko-111";
-    String name = "Lidkin";
-    String token;
+    String registerToken, token, email, password, name;
     Browser browser;
-
+    MainPage mainPage;
+    Credentials credentials = new Credentials();
     UserManipulation userManipulation = new UserManipulation();
+    UserBody body = new UserBody();
 
     @Parameterized.Parameter
     public String myBrowser;
@@ -35,22 +35,27 @@ public class MoveToMainPageFromAccountProfilePageTest {
 
     @Before
     public void registerUser() {
-        User body = new User(email,password,name);
-        token = userManipulation.registerUserAndGetToken(body);
+        email = credentials.getEmail();
+        password = credentials.getPassword();
+        name = credentials.getName();
+        registerToken = userManipulation.registerOrLoginUser(body.UserRegisterBody(email, password, name),"register");
+        browser = new Browser(myBrowser);
+        mainPage = userManipulation.loginUserOnLoginPage(email, password);
     }
 
     @After
     public void cleanUp(){
+        token = localStorage().getItem("accessToken");
+        if (token == null) {
+            userManipulation.deleteUser(registerToken);
+        } else { userManipulation.deleteUser(token.substring(7)); }
         browser.tearDown();
-        userManipulation.deleteUser(token);
     }
 
     @Test
-    public void byConstructorButtonTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
-        AccountProfilePage accountProfilePage = userManipulation.login(email, password)
-                .clickEnterProfileAuthorizedUser();
-        String actual = accountProfilePage
+    public void byConstructorButtonTest(){
+        String actual = mainPage
+                .clickEnterProfileAuthorizedUser()
                 .checkIsAccountProfilePage()
                 .clickConstructorButton()
                 .getTextOrderButton();
@@ -58,11 +63,9 @@ public class MoveToMainPageFromAccountProfilePageTest {
     }
 
     @Test
-    public void byLogoButtonTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
-        AccountProfilePage accountProfilePage = userManipulation.login(email, password)
-                .clickEnterProfileAuthorizedUser();
-        String actual = accountProfilePage
+    public void byLogoButtonTest()  {
+        String actual = mainPage
+                .clickEnterProfileAuthorizedUser()
                 .checkIsAccountProfilePage()
                 .clickLogoButton()
                 .getTextOrderButton();
