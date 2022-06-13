@@ -1,10 +1,15 @@
 package practicum;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import practicum.PageObject.RegisterPage;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import practicum.pageobject.RegisterPage;
+import practicum.user.Credentials;
+import practicum.user.UserBody;
+import practicum.user.UserManipulation;
 import java.util.Objects;
 import static com.codeborne.selenide.Selenide.*;
 import static org.junit.Assert.assertEquals;
@@ -12,12 +17,12 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class RegisterPositiveFlowTest {
 
-    String email = "lisha66@yandex.com";
-    String password = "kokoko-111";
-    String name = "Lidkin";
-    String token;
+    String token, email, password, name;
+    UserBody body = new UserBody();
+    WebDriverWait wait;
     Browser browser;
-
+    Credentials credentials = new Credentials();
+    UserManipulation userManipulation = new UserManipulation();
     @Parameterized.Parameter
     public String myBrowser;
 
@@ -28,26 +33,31 @@ public class RegisterPositiveFlowTest {
                 {"google"}
         };
     }
+    @Before
+    public void setUp(){
+        email = credentials.getEmail();
+        password = credentials.getPassword();
+        name = credentials.getName();
+        browser = new Browser(myBrowser);
+        wait = browser.getWaitObject();
+    }
 
     @After
     public void cleanUp() {
         browser.tearDown();
-        UserManipulation userManipulation = new UserManipulation();
-        userManipulation.deleteUser(token);
+        if (token != null) {
+            userManipulation.deleteUser(token);
+        } else {
+            userManipulation.deleteUser(userManipulation.registerOrLoginUser(body.UserLoginBody(email, password), "login"));
+        }
     }
 
     @Test
-    public void registerTest() throws InterruptedException {
-        browser = new Browser(myBrowser);
+    public void registerTest(){
         RegisterPage registerPage = open(RegisterPage.pageUrl, RegisterPage.class);
         String actual = registerPage
-                .enterEmail(email)
-                .enterName(name)
-                .enterPassword(password)
-                .clickRegisterButton()
-                .enterEmail(email)
-                .enterPassword(password)
-                .clickLogin()
+                .registerUser(email, password, name)
+                .loginWithWait(email, password, wait)
                 .getTextOrderButton();
         token = Objects.requireNonNull(localStorage().getItem("accessToken")).substring(7);
         assertEquals("Оформить заказ", actual);
